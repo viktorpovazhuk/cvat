@@ -1,0 +1,49 @@
+metadata:
+  name: pth-groudning-dino
+  namespace: cvat
+  annotations:
+    name: Grounding DINO
+    type: detector
+    framework: pytorch
+    spec: |
+      [
+        { "id": 1, "name": "person" },
+        { "id": 2, "name": "helmet" },
+      ]
+
+spec:
+  description: Grounding DINO by IDEA-Research
+  runtime: 'python:3.10'
+  handler: main:handler
+  eventTimeout: 30s
+
+  build:
+    image: cvat.pth.groudning.dino
+    baseImage: ubuntu:20.04
+    commands:
+    - apt update
+    - apt install -y software-properties-common && \
+        add-apt-repository ppa:deadsnakes/ppa && apt update && apt install -y python3.10 libpython3.10-dev
+    - apt install --no-install-recommends -y gcc git zip curl htop libgl1-mesa-glx libglib2.0-0  gnupg g++ libusb-1.0-0 wget
+    - curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 && python3.10 -m pip --version
+    - ln -s /usr/bin/python3.10 /usr/bin/python
+    - pip install torch torchvision torchaudio
+    - git clone https://github.com/IDEA-Research/GroundingDINO.git && cd GroundingDINO && \
+        pip install -r requirements.txt && pip install -e .
+    - mkdir weights && cd weights && \
+        wget -q https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
+
+  triggers:
+    myHttpTrigger:
+      maxWorkers: 2
+      kind: 'http'
+      workerAvailabilityTimeoutMilliseconds: 10000
+      attributes:
+        maxRequestBodySize: 33554432 # 32MB
+
+  platform:
+    attributes:
+      restartPolicy:
+        name: always
+        maximumRetryCount: 3
+      mountMode: volume

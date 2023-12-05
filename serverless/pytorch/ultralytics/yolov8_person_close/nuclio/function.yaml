@@ -1,0 +1,36 @@
+metadata:
+  name: pth-ultralytics-yolov8-person-close
+  namespace: cvat
+  annotations:
+    name: YOLOv8-person-close
+    type: detector
+    framework: pytorch
+    spec: |
+      [
+        { "id": 1, "name": "person" },
+      ]
+
+spec:
+  description: YOLOv8 for close person detection by Ultralytics
+  runtime: 'python:3.11'
+  handler: main:handler
+  eventTimeout: 30s
+
+  build:
+    image: cvat.pth.ultralytics.yolov8
+    baseImage: ultralytics/ultralytics:8.0.205-cpu
+
+  triggers:
+    myHttpTrigger:
+      maxWorkers: 2
+      kind: 'http'
+      workerAvailabilityTimeoutMilliseconds: 10000
+      attributes:
+        maxRequestBodySize: 33554432 # 32MB
+
+  platform:
+    attributes:
+      restartPolicy:
+        name: always
+        maximumRetryCount: 3
+      mountMode: volume
