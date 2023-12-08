@@ -3,9 +3,10 @@ import base64
 import cv2
 import numpy as np
 from ultralytics import YOLO
+from pathlib import Path
 
 CLASSES = ['person']
-MODEL_PATH = 'person_close.pt'
+MODEL_PATH = '/opt/nuclio/2311_person_close_m_ep200_b37.pt'
 
 DEVICE = 'cpu'
 BOX_THRESHOLD = 0.35
@@ -20,7 +21,7 @@ def init_context(context):
     context.logger.info("Init context...100%")
 
 def handler(context, event):
-    context.logger.info("Run Grounding DINO model")
+    context.logger.info("Run YOLO model")
 
     data = event.body
     img_bytes = base64.b64decode(data["image"])
@@ -30,14 +31,14 @@ def handler(context, event):
     threshold = float(data.get("threshold", 0.5))
 
     res = context.user_data.model_handler.predict(img, imgsz=640, device=DEVICE, conf=BOX_THRESHOLD)[0]
-    detections = res.cpu().numpy().boxes
+    boxes = res.cpu().numpy().boxes
 
     results = []
-    for box, class_id, conf in zip(detections.xyxy, detections.cls, detections.conf):
-        label = CLASSES[class_id]
+    for box, class_id, conf in zip(boxes.xyxy, boxes.cls, boxes.conf):
+        label = CLASSES[int(class_id)]
         if conf >= threshold:
             results.append({
-                "confidence": str(conf),
+                "confidence": str(float(conf)),
                 "label": label,
                 "points": box.tolist(),
                 "type": "rectangle",

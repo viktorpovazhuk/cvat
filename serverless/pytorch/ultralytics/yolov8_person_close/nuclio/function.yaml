@@ -7,12 +7,12 @@ metadata:
     framework: pytorch
     spec: |
       [
-        { "id": 1, "name": "person" },
+        { "id": 1, "name": "person" }
       ]
 
 spec:
   description: YOLOv8 for close person detection by Ultralytics
-  runtime: 'python:3.11'
+  runtime: 'python:3.8'
   handler: main:handler
   eventTimeout: 30s
 

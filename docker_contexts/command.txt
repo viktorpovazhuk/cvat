@@ -1,0 +1,9 @@
+python GroundingDINO/demo/inference_on_a_image.py \
+-c GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py \
+-p weights/groundingdino_swint_ogc.pth \
+-i GroundingDINO/.asset/cat_dog.jpeg \
+-o output \
+-t "cat, dog" \
+--cpu-only
+
+docker run -it -v /home/mihadmin/projects/cvat/docker_contexts/output:/workspace/output dino /bin/bash

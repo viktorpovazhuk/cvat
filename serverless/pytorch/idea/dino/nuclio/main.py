@@ -46,10 +46,10 @@ def handler(context, event):
 
     results = []
     for box, class_id, conf in zip(detections.xyxy, detections.class_id, detections.confidence):
-        label = CLASSES[class_id]
+        label = CLASSES[int(class_id)]
         if conf >= threshold:
             results.append({
-                "confidence": str(conf),
+                "confidence": str(float(conf)),
                 "label": label,
                 "points": box.tolist(),
                 "type": "rectangle",
